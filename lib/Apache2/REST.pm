@@ -17,7 +17,7 @@ use Apache2::REST::Request ;
 
 use Data::Dumper ;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -25,7 +25,7 @@ Apache2::REST - Micro framework for REST API implementation under apache2/mod_pe
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =head1 QUICK TUTORIAL
 
@@ -75,6 +75,10 @@ See L<Apache2::REST::Handler> for  about how to implement a handler.
 Then access C<http://yourhost/>. You should see your greeting message from your MyApp::REST::API handler.
 
 See L<Apache2::REST::Overview> for more details about how it works.
+
+=head1 PARTICIPATE
+
+See the Google project page for wiki and collaborative tools: L<http://code.google.com/p/apache2rest/>
 
 =head1 CONFIGURATION
 
