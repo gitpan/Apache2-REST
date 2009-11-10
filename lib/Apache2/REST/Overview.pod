@@ -10,6 +10,9 @@ Apache2::REST builds a L<Apache2::REST::Handler> and let it handle the root frag
 
 Apache2::REST then writes the response back to the client with the appropriate writer.
 
+If the response is written as a string (which is true for defaults writers),
+this string is a unicode string encoded in UTF-8 bytes.
+
 =head2 How a Apache2::REST::Handler works
 
 If the requested resource is terminal, it performs the requested HTTP method (if allowed).

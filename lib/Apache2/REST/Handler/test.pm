@@ -27,6 +27,12 @@ sub GET{
     return Apache2::Const::HTTP_OK ;
 }
 
+=head2 POST
+
+Performs a fake POST
+
+=cut
+
 sub POST{
     my ($self, $req , $resp ) = @_ ;
     $resp->data()->{'test_mess'} = 'This is a POST test message' ;
@@ -34,20 +40,31 @@ sub POST{
     return Apache2::Const::HTTP_OK ;
 }
 
+=head2 PUT
+
+Performs a fake PUT
+
+=cut
+
 sub PUT{
     my ($self, $req , $resp ) = @_ ;
     $resp->data()->{'test_mess'} = 'This is a PUT test message' ;
     ## It is OK
     return Apache2::Const::HTTP_OK ;
 }
+
+=head2 DELETE
+
+Performs a fake DELETE
+
+=cut
+
 sub DELETE{
     my ($self, $req , $resp ) = @_ ;
     $resp->data()->{'test_mess'} = 'This is a DELETE test message' ;
     ## It is OK
     return Apache2::Const::HTTP_OK ;
 }
-
-
 
 
 =head2 buildNext

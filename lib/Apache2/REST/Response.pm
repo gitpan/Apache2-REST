@@ -5,6 +5,11 @@ use warnings ;
 
 use base qw/Class::AutoAccess/ ;
 
+use Apache2::Const qw( 
+                       :common :http 
+                       );
+
+
 =head1 NAME
 
 Apache2::REST::Response - Container for an API Response.
@@ -32,6 +37,8 @@ sub new{
         'status' => Apache2::Const::HTTP_OK ,
         'message' => '' ,
         'data' => {},
+        'binMimeType' => undef ,
+        'bin' => undef ,
     };
     return bless $self , $class ;
 }
@@ -52,6 +59,17 @@ Get/Sets a more explicit message related to the status
 
 Hash of the actual data returned by the handler (see L<Apache2::REST::Handler> ).
 
+=cut
+
+=head2 bin
+
+Get/Set the binary content to return in case the bin writer is used.
+
+=cut
+
+=head2 binMimeType
+
+Get/Set the MIME type of the binary content.
 
 =cut
 

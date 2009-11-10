@@ -6,11 +6,14 @@ README
 lib/Apache2/REST.pm
 lib/Apache2/REST/AppAuth.pm
 lib/Apache2/REST/AppAuth/Echo.pm
+lib/Apache2/REST/Writer.pm
+lib/Apache2/REST/Writer/bin.pm
 lib/Apache2/REST/Writer/yaml.pm
 lib/Apache2/REST/Writer/json.pm
 lib/Apache2/REST/Writer/xml.pm
 lib/Apache2/REST/Writer/perl.pm
 lib/Apache2/REST/Handler.pm
+lib/Apache2/REST/Handler/bin.pm
 lib/Apache2/REST/Handler/test.pm
 lib/Apache2/REST/Handler/login.pm
 lib/Apache2/REST/Handler/test/user/friends.pm

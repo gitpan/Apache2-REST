@@ -1,5 +1,13 @@
 Revision history for Apache2-REST
 
+0.03    
+        Added special writer (bin) to handle binary responses.
+        Proper management with binary output of unicode values.
+        Added requestedFormat to Apache2::REST::Request
+        Implemented option Apache2RESTWriterRegistry
+        Implemented option Apache2RESTWriterDefault
+        Added example with unicode characters
+
 0.02    09 Nov 2009
         Added a link to the Google project page
 

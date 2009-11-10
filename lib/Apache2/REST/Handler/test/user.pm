@@ -19,6 +19,10 @@ sub GET{
     my ( $self , $req , $resp ) = @_ ;
     
     $resp->data()->{'user_message'} = 'You are accessing user '.$self->userid() ;
+    $resp->data()->{'user'} = {
+        'name' => "\x{111}\x{103}ng t\x{1ea3}i t\x{1ea1}i",
+        'email' => 'jerome@eteve.net' ,
+    };
     return Apache2::Const::HTTP_OK ;
 }
 

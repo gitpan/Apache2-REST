@@ -43,8 +43,9 @@ sub asBytes{
     # JSON wont output blessed object not implementing the TO_JSON request
     my %resp = %$resp ;
     my $coder = JSON::XS->new->allow_blessed(0)->utf8;
-    
+    ## These are bytes. This is correct.
     return $coder->encode(\%resp) ;
+    
 }
 
 1;

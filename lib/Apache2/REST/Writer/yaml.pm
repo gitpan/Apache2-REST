@@ -43,7 +43,9 @@ sub asBytes{
     my ($self,  $resp ) = @_ ;
     ## Shallow unblessed copy
     my %resp = %$resp ;
-    return Dump(\%resp) ;
+    my $yaml = Dump(\%resp) ;
+    ## yaml is a perl string, not bytes.
+    return Encode::encode_utf8($yaml) ;
 }
 
 1;

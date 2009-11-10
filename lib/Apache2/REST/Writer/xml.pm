@@ -37,7 +37,10 @@ Returns the response as xml UTF8 bytes for output.
 
 sub asBytes{
     my ($self,  $resp ) = @_ ;
-    return XMLout($resp , RootName => 'response' ) ;
+    my $xmlString =  XMLout($resp , RootName => 'response' ) ;
+    # xmlString is a string, not bytes
+    # return bytes.
+    return Encode::encode_utf8($xmlString) ;
 }
 
 1;

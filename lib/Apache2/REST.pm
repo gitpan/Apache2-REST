@@ -17,7 +17,7 @@ use Apache2::REST::Request ;
 
 use Data::Dumper ;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -25,7 +25,7 @@ Apache2::REST - Micro framework for REST API implementation under apache2/mod_pe
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =head1 QUICK TUTORIAL
 
@@ -141,7 +141,7 @@ Example:
     
 =head3 Apache2RESTWriterDefault
 
-Sets the default writer. If ommitted, the default is C<xml>. Available writers are C<xml>, C<json>, C<yaml>, C<perl>
+Sets the default writer. If ommitted, the default is C<xml>. Available writers are C<xml>, C<json>, C<yaml>, C<perl>, C<bin>
 
 =head2 command line REST client
 
@@ -152,16 +152,59 @@ This module comes with a commandline REST client to test your API:
 
 It is written as a thin layer on top of L<REST::Client>
 
+=head2 Apache2RESTWriterRegistry
+
+Use this to register your own Writer Classes.
+
+For instance, you want to register your writer under the format name myfmt:
+
+   PerlAddVar Apache2RESTWriterRegistry 'myfmt'
+   PerlAddVar Apache2RESTWriterRegistry 'MyApp::REST::Writer::mywriter"
+
+C<MyApp::REST::Writer::mywriter> Must be a subclass of C<Apache2::REST::Writer>.
+
+You can now use your new registered writer by using fmt=myfmt.
+
 =cut
+
+
+my $_wtClasses = {
+    'xml'  => 'Apache2::REST::Writer::xml' ,
+    'json' => 'Apache2::REST::Writer::json' ,
+    'yaml' => 'Apache2::REST::Writer::yaml' ,
+    'perl' => 'Apache2::REST::Writer::perl' ,
+    'bin'  => 'Apache2::REST::Writer::bin' ,
+};
+my $_isInit = 0 ;
+
+sub doInit{
+    my $r = shift ;
+    my $req = shift ;
+    
+    ## Initialize Apache2RESTWriterRegistry
+    my %wt = $r->dir_config->get('Apache2RESTWriterRegistry');
+    unless( keys %wt ){
+        %wt = () ;
+    }
+    foreach my $key ( keys %wt ){
+        $_wtClasses->{$key} = $wt{$key} ;
+    }
+}
+
 
 sub handler{
     my $r = shift ;
-    
     my $req = Apache2::REST::Request->new($r);
     my $paramEncoding = $r->dir_config('Apache2RESTParamEncoding') || '';
     if ( $paramEncoding  ){
         $req->paramEncoding($paramEncoding) ;
     }
+    
+    unless( $_isInit ){
+        doInit($r, $req) ;
+        $_isInit = 1 ;
+    }
+    
     ## Response object
     my $resp = Apache2::REST::Response->new() ;
     my $retCode = undef ;
@@ -172,10 +215,12 @@ sub handler{
     }
     
     my $wtMethod = $r->dir_config('Apache2RESTWriterSelectMethod') || 'param' ;
-    my $format = 'xml' ;
-    if ( $wtMethod eq 'param' ){ $format = $req->param('fmt') || 'xml' ; }
-    if ( $wtMethod eq 'extension'){ ( $format ) = ( $uri =~ /\.(\w+)$/ ) ; $uri =~ s/\.\w+$// ;  $format ||= 'xml' ;}
-
+    my $format = '' ;
+    if ( $wtMethod eq 'param' ){ $format = $req->param('fmt') || '' ; }
+    if ( $wtMethod eq 'extension'){ ( $format ) = ( $uri =~ /\.(\w+)$/ ) ; $uri =~ s/\.\w+$// ;  $format ||= '' ;}
+    # Let Apache2::REST::Request know about requested_format
+    $req->requestedFormat($format) ;
+    
     
     ## Application level authorisation part
     my $appAuth = $r->dir_config('Apache2RESTAppAuth') || '' ;
@@ -216,10 +261,11 @@ sub handler{
     
   output:
     ## Load the writer for the given format
-    ## Default is xml
-    my $wClass = 'Apache2::REST::Writer::'.$format ;
+    my $defaultWriter = $r->dir_config('Apache2RESTWriterDefault') || 'xml' ;
+    my $wClass = $_wtClasses->{$req->requestedFormat()} || $_wtClasses->{$defaultWriter}  ;
     eval "require $wClass;" ;
     if ( $@ ){
+        warn "Cannot load $wClass:$@\n" ;
         ## Silently fail to default writer
         require Apache2::REST::Writer::xml ;
         $wClass = 'Apache2::REST::Writer::xml' ;
@@ -227,12 +273,13 @@ sub handler{
     my $writer = $wClass->new() ;
     
     
-    $r->content_type($writer->mimeType()) ;
+    $r->content_type($writer->mimeType($resp)) ;
     
     my $respTxt = $writer->asBytes($resp) ;
     if ( $retCode && ( $retCode  != Apache2::Const::HTTP_OK ) ){
         $r->status($retCode);
     }
+    binmode STDOUT ;
     print $respTxt  ;
     return  Apache2::Const::OK ;
     

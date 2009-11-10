@@ -5,11 +5,17 @@ use base qw(Apache2::Request);
 
 use Encode ;
 
-=head2 NAME
+=head1 NAME
 
 Apache2::REST::Request - Apache2::Request subclass.
 
-=cut
+=head1 DESCRIPTION
+
+This module adds extra features to the standard C<Apache2::Request>.
+
+As a consequence, you can use any method available on C<Apache2::Request>, plus
+the additional methods below.
+
 
 =head2 new
 
@@ -22,6 +28,7 @@ sub new {
     my $self = {
         r => Apache2::Request->new(@args) ,
         'paramEncoding' => 'UTF-8' ,
+        'requestedFormat' => '' ,
     };
     return bless $self,  $class;
 }
@@ -55,5 +62,21 @@ sub paramEncoding{
     if ( $v ){ $self->{'paramEncoding'} = $v ;}
     return $self->{'paramEncoding'} ;
 }
+
+=head2 requestedFormat
+
+Get/Set the requested format.
+
+You can use this to force the returned format from a particular resource.
+Or to allow methods based on the format.
+
+=cut
+
+sub requestedFormat{
+    my ( $self , $v ) = @_ ;
+    if ( $v ){ $self->{'requestedFormat'} = $v ;}
+    return $self->{'requestedFormat'};
+}
+
 
 1;
