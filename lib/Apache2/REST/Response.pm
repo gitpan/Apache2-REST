@@ -43,6 +43,25 @@ sub new{
     return bless $self , $class ;
 }
 
+=head2 cleanup
+
+Cleanup this response so it can go out without any
+empty attributes.
+
+Internal use.
+
+
+=cut
+
+sub cleanup{
+    my ( $self ) = @_ ;
+    foreach my $key ( keys %$self ){
+        unless( defined $self->{$key} ){
+            delete $self->{$key} ;
+        }
+    }
+}
+
 =head2 status
 
 Get/Sets the HTTP status of this response

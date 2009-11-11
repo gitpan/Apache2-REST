@@ -17,7 +17,7 @@ use Apache2::REST::Request ;
 
 use Data::Dumper ;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -25,7 +25,7 @@ Apache2::REST - Micro framework for REST API implementation under apache2/mod_pe
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 QUICK TUTORIAL
 
@@ -133,6 +133,8 @@ Valid values are:
 
     param (the default) - With this method, the writer is selected from the fmt parameter. For instance '?fmt=json'
     extension - With this method, the writer is selected from the url extension. For instance : '/test.json'
+    header - With this method, the writer is selected from the MIME type given in the Accept HTTP header
+             This MIME type should match one of the writer's mimeType.
 
 Example:
     
@@ -168,6 +170,7 @@ You can now use your new registered writer by using fmt=myfmt.
 =cut
 
 
+# Private
 my $_wtClasses = {
     'xml'  => 'Apache2::REST::Writer::xml' ,
     'json' => 'Apache2::REST::Writer::json' ,
@@ -175,6 +178,7 @@ my $_wtClasses = {
     'perl' => 'Apache2::REST::Writer::perl' ,
     'bin'  => 'Apache2::REST::Writer::bin' ,
 };
+my $_MIME2wtClass = {};
 my $_isInit = 0 ;
 
 sub doInit{
@@ -188,6 +192,20 @@ sub doInit{
     }
     foreach my $key ( keys %wt ){
         $_wtClasses->{$key} = $wt{$key} ;
+    }
+    
+    ## Register all the mimetypes
+    my $dummyResp = Apache2::REST::Response->new() ;
+    foreach my $key ( keys %$_wtClasses ){
+        my $class = $_wtClasses->{$key} ;
+        eval "require $class;" ;
+        if ( $@ ){
+            warn "Cannot load $class: $@\n";
+            next ;
+        }
+        my $dummyWriter = $class->new();
+        my $mimeType = $dummyWriter->mimeType($dummyResp);
+        $_MIME2wtClass->{$dummyWriter->mimeType($dummyResp)} = $key ;
     }
 }
 
@@ -214,10 +232,14 @@ sub handler{
         $uri =~ s/^\Q$base\E// ;
     }
     
+    ## Get the requested format
     my $wtMethod = $r->dir_config('Apache2RESTWriterSelectMethod') || 'param' ;
     my $format = '' ;
     if ( $wtMethod eq 'param' ){ $format = $req->param('fmt') || '' ; }
     if ( $wtMethod eq 'extension'){ ( $format ) = ( $uri =~ /\.(\w+)$/ ) ; $uri =~ s/\.\w+$// ;  $format ||= '' ;}
+    if ( $wtMethod eq 'header' ){ $format = $_MIME2wtClass->{$r->headers_in->{'Accept'}}; }
+        
+    
     # Let Apache2::REST::Request know about requested_format
     $req->requestedFormat($format) ;
     
@@ -272,13 +294,19 @@ sub handler{
     }
     my $writer = $wClass->new() ;
     
-    
     $r->content_type($writer->mimeType($resp)) ;
     
+    $resp->cleanup() ;
     my $respTxt = $writer->asBytes($resp) ;
     if ( $retCode && ( $retCode  != Apache2::Const::HTTP_OK ) ){
         $r->status($retCode);
     }
+    if ( $retCode && $retCode =~ /^2/ ){
+        $r->headers_out()->add('Content-length' , length($respTxt)) ;
+    }else{
+        $r->err_headers_out()->add('Content-length' , length($respTxt)) ;
+    }
+    
     binmode STDOUT ;
     print $respTxt  ;
     return  Apache2::Const::OK ;
@@ -293,16 +321,21 @@ Jerome Eteve, C<< <jerome at eteve.net> >>
 =head1 BUGS
 
 Please report any bugs or feature requests to
-C<bug-apache2-rest at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Apache2-REST>.
+
+L<http://code.google.com/p/apache2rest/issues/list>
+
 I will be notified, and then you'll automatically be notified of progress on
 your bug as I make changes.
 
 =head1 SUPPORT
 
-You can find documentation for this module with the perldoc command.
+You can find reference documentation for this module with the perldoc command.
 
     perldoc Apache2::REST
+
+You can find the wiki with Cooking recipes and in depth articles at:
+
+L<http://code.google.com/p/apache2rest/w/list>
 
 
 =over 4
@@ -314,10 +347,6 @@ L<http://annocpan.org/dist/Apache2-REST>
 =item * CPAN Ratings
 
 L<http://cpanratings.perl.org/d/Apache2-REST>
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Apache2-REST>
 
 =item * Search CPAN
 

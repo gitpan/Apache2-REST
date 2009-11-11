@@ -18,6 +18,7 @@ WriteMakefile(
         'YAML' => 0.68 ,
         'REST::Client' => 118,
         'HTTP::Status' => 1.28,
+        'Digest::MD5' => 2.33,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Apache2-REST-*' },

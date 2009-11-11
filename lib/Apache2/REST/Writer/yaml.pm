@@ -27,10 +27,7 @@ Getter
 =cut
 
 sub mimeType{
-    # Ideal
-    #return 'application/json' ;
-    # Reality
-    return 'text/plain';
+    return 'text/yaml';
 }
 
 =head2 asBytes
