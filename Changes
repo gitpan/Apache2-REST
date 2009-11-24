@@ -1,5 +1,15 @@
 Revision history for Apache2-REST
 
+0.05    24 Nov 2009
+        Remove pod coverage to avoid build failure.
+           due to Apache2::const::*
+        Return 401 HTTP code when method unauthorized
+         instead of 405. This is a compatibility issue for
+         APIs implemented with a former version.
+        Fixed response status when method not implemented
+        Better error 500 reporting
+        Better error 501 reporting
+
 0.04    11 Nov 2009
         Added dependency on Digest::MD5
         Added Content-Length

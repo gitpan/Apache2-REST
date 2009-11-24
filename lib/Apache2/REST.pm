@@ -17,7 +17,7 @@ use Apache2::REST::Request ;
 
 use Data::Dumper ;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 NAME
 
@@ -25,7 +25,7 @@ Apache2::REST - Micro framework for REST API implementation under apache2/mod_pe
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =head1 QUICK TUTORIAL
 

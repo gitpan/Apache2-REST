@@ -70,6 +70,8 @@ sub handle{
         ## Check auth first
         if ( $self->isAuth($method , $req )){
             unless( $self->can($method)){
+                $resp->message('Method '.$method.' not implemented');
+                $resp->status(HTTP_NOT_IMPLEMENTED);
                 return HTTP_NOT_IMPLEMENTED ;
             }
             my $res = undef;
@@ -77,16 +79,18 @@ sub handle{
                 $res = $self->$method($req,$resp) ;
             };
             if ( $@ ){
+                my $err = $@ ;
+                warn "REST API ERROR: ".$err."\n" ;
+                $resp->message('SERVER ERROR: '.$err);
                 $resp->status(HTTP_INTERNAL_SERVER_ERROR);
-                $resp->message('SERVER ERROR: '.$@);
                 return HTTP_INTERNAL_SERVER_ERROR ;
             }
             $resp->status($res) ;
             return $res ;
         }else{
-            $resp->status(HTTP_METHOD_NOT_ALLOWED) ;
-            $resp->message('method not allowed') ;
-            return HTTP_METHOD_NOT_ALLOWED ;
+            $resp->status(HTTP_UNAUTHORIZED) ;
+            $resp->message('method unauthorized') ;
+            return HTTP_UNAUTHORIZED ;
         }
     }
     my $fragment = shift @$stack ;

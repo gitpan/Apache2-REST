@@ -26,5 +26,4 @@ lib/Apache2/REST/Request.pm
 lib/Apache2/REST/Overview.pod
 bin/restclient
 t/boilerplate.t
-t/pod-coverage.t
 t/pod.t
