@@ -10,14 +10,17 @@ use Apache2::RequestRec ();
 use Apache2::RequestIO ();
 use Apache2::Response ();
 use Apache2::RequestUtil ();
+use Apache2::Log;
 
 use Apache2::REST::Handler ;
 use Apache2::REST::Response ;
 use Apache2::REST::Request ;
 
+use Apache2::REST::Conf ;
+
 use Data::Dumper ;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -25,7 +28,7 @@ Apache2::REST - Micro framework for REST API implementation under apache2/mod_pe
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =head1 QUICK TUTORIAL
 
@@ -97,6 +100,21 @@ Example:
       ...
       PerlSetVar Apache2RESTAPIBase "/api/" ;
     </Location>
+
+
+=head3 Apache2RESTErrorOutput
+
+Defines where to output the error in case of API error.
+
+The default outputs the error in the response message and in
+the main apache2 error log.
+
+Valid values are:
+    'both' (default)
+    'response' (outputs error only in response)
+    'server'   (outputs error only in server logs. The response contains
+                an error reference for easy retrieval in the error log file)
+                
 
 =head3 Apache2RESTHandlerRootClass  
 
@@ -272,6 +290,9 @@ sub handler{
     }
     
     my $topHandler = $handlerRootClass->new() ;
+    my $conf = Apache2::REST::Conf->new() ;
+    $conf->Apache2RESTErrorOutput($r->dir_config('Apache2RESTErrorOutput') || 'both' );
+    $topHandler->conf($conf);
     
     my @stack = split('\/+' , $uri);
     # Protect against empty fragments.

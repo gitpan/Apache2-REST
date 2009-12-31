@@ -6,6 +6,12 @@ README
 lib/Apache2/REST.pm
 lib/Apache2/REST/AppAuth.pm
 lib/Apache2/REST/AppAuth/Echo.pm
+lib/Apache2/REST/ErrorOutputRegistry.pm
+lib/Apache2/REST/ErrorOutputHandler.pm
+lib/Apache2/REST/ErrorOutputHandler/both.pm
+lib/Apache2/REST/ErrorOutputHandler/response.pm
+lib/Apache2/REST/ErrorOutputHandler/server.pm
+lib/Apache2/REST/Conf.pm
 lib/Apache2/REST/Writer.pm
 lib/Apache2/REST/Writer/bin.pm
 lib/Apache2/REST/Writer/yaml.pm

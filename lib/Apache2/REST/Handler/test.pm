@@ -22,6 +22,10 @@ Apache2::REST::Handler::test - test handler access '/test/' to test your install
 sub GET{
     my ($self, $req , $resp ) = @_ ;
     
+    if ( $req->param('die') ){
+        die "This is an error\n" ;
+    }
+    
     $resp->data()->{'test_mess'} = 'This is a GET test message' ;
     ## It is OK
     return Apache2::Const::HTTP_OK ;

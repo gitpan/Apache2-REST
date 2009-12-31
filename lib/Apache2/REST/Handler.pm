@@ -8,6 +8,9 @@ use Apache2::Const qw(
                        :common :http 
                        );
 
+use Apache2::REST::Conf ;
+use Apache2::REST::ErrorOutputRegistry ;
+
 use base qw/Class::AutoAccess/ ;
 
 =head1 NAME
@@ -80,8 +83,8 @@ sub handle{
             };
             if ( $@ ){
                 my $err = $@ ;
-                warn "REST API ERROR: ".$err."\n" ;
-                $resp->message('SERVER ERROR: '.$err);
+                Apache2::REST::ErrorOutputRegistry->instance()->getOutput($self->conf()->Apache2RESTErrorOutput())->handle($err,$resp, $req);
+                
                 $resp->status(HTTP_INTERNAL_SERVER_ERROR);
                 return HTTP_INTERNAL_SERVER_ERROR ;
             }
@@ -170,11 +173,32 @@ You can override this in subclasses. Do not forget to call $class->SUPER::new() 
 =cut
 
 sub new{
-    my ( $class , $parent) = @_ ;
+    my ( $class , $parent ) = @_ ;
     my $self = {
         'parent' => $parent ,
     };
+    # Enforce the presence of the _conf attribute.
+    if ( $parent ){
+        $self->{'_conf'} = $parent->conf() ;
+    }else{
+        $self->{'_conf'} = Apache2::REST::Conf->new()  ;
+    }
     return bless $self , $class ;
+}
+
+=head2 conf
+
+Get/Sets the configuration attached to this handler.
+Or the parent one if no one is defined.
+
+=cut
+
+sub conf{
+    my ( $self , $newC ) = @_ ;
+    if ( defined $newC ){
+        $self->{'_conf'} = $newC ;
+    }
+    return $self->{'_conf'} || $self->parent()->conf() ;
 }
 
 =head2 isTopLevel

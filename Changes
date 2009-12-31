@@ -1,5 +1,9 @@
 Revision history for Apache2-REST
 
+0.06    
+        Added options for error output.
+        Log errors server side by using log_error (and Apache2::Log)
+
 0.05    24 Nov 2009
         Remove pod coverage to avoid build failure.
            due to Apache2::const::*

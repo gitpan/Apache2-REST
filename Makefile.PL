@@ -13,6 +13,7 @@ WriteMakefile(
         'Test::More' => 0,
         'Class::AutoAccess' => 0.02 ,
         'Apache2::Request' => 2.08 ,
+        'Apache2::Log'     => 2.000001,
         'JSON::XS' => 2.2222 ,
         'XML::Simple' => 2.14 ,
         'YAML' => 0.68 ,
